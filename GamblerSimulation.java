@@ -1,3 +1,4 @@
+import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -11,7 +12,13 @@ public class GamblerSimulation {
     public static final int BET = 1;
     public static final int WIN = BET;
     public static final int LOSS = 0;
-    public int winningAmount, losingAmount, stake, days,totalAmountEarned;
+    public int winningAmount, losingAmount,
+            stake, days, totalAmountEarned, day = 0;
+
+    LinkedHashMap<Integer, Integer> daysWon = new LinkedHashMap<>();
+    LinkedHashMap<Integer, Integer> daysLoss = new LinkedHashMap<>();
+    LinkedHashMap<Integer, Integer> daysValue = new LinkedHashMap<>();
+
 
     /*
      * @useCase 2: Win Or Loss
@@ -32,23 +39,24 @@ public class GamblerSimulation {
         return LOSS;
 
     }
-
     /*
      * @useCase 3:Gambler Plays for 50% of if won or loss
      * @author   :Rohan Kadam
      * */
 
     public int resignStake() {
-        losingAmount = (int) Math.round(STAKE * 0.5);
-        winningAmount = (int) Math.round(STAKE + (STAKE * 0.5));
+        losingAmount = (int) Math.round(STAKE * 0.5);//losing Amount 50
+        winningAmount = (int) Math.round(STAKE + (STAKE * 0.5));// winning Amount 150
         boolean stop = true;
         stake = STAKE;
         while (stop == true) {
             winOrLoss();
             if (stake == losingAmount) {
+                daysLoss.put(day, stake);
                 stop = false;
             }
             if (stake == winningAmount) {
+                daysWon.put(day, stake);
                 stop = false;
             }
         }
@@ -61,12 +69,13 @@ public class GamblerSimulation {
      * @author   :Rohan Kadam
      * */
     public int totalAmountWonOrLoss(int days) {
-        int day_stake=0;
+        int day_stake = 0;
         while (days > 0) {
-
-            day_stake=resignStake();
+            day++;
+            day_stake = resignStake();
             days = days - 1;
-            totalAmountEarned=totalAmountEarned+day_stake;
+            totalAmountEarned = totalAmountEarned + day_stake;
+            daysValue.put(day,totalAmountEarned);
 
         }
 
@@ -74,13 +83,77 @@ public class GamblerSimulation {
         return totalAmountEarned;
     }
 
+    /*
+     * @useCase 5:Calculating  Total Amount for  given month and
+     *            loss & win days with amount.
+     * @author   :Rohan Kadam
+     * */
+
+    public int calculateForMonth(int days) {
+
+        totalAmountWonOrLoss(days);
+        System.out.println("****Days Won in  month****");
+        printDaysWithValue(daysWon);
+        System.out.println("****Days Loss in  month****");
+        printDaysWithValue(daysLoss);
+
+        return totalAmountEarned;
+    }
+
+    /*
+     * @useCase 6:Calculating  luckiest and Unluckiest Days in month
+     * @author   :Rohan Kadam
+     * */
+
+    public void luckiestDayAndUnluckiestDay() {
+          luckiestDay(daysValue);
+          unluckiestDay(daysValue);
+    }
+
+    public void luckiestDay(LinkedHashMap<Integer, Integer> daysWon) {
+        int max = 0;
+        int max_key = 0;
+        for (Integer value : daysWon.keySet()) {
+            if (max < daysWon.get(value)) {
+                max = daysWon.get(value);
+                max_key = value;
+            }
+        }
+        System.out.println("Luckiest Day:-  " + max_key + " value:-   " + max);
+
+
+    }
+
+    public void unluckiestDay(LinkedHashMap<Integer, Integer> daysLoss) {
+        int min = 0;
+        int min_key = 0;
+        for (Integer value : daysLoss.keySet()) {
+            if (min > daysLoss.get(value)) {
+                min = daysLoss.get(value);
+                min_key = value;
+            }
+        }
+        System.out.println("Unluckiest Day:- " + min_key + " value:-   " + min);
+
+    }
+
+
+    /*
+    * Print function for print days and amount earned.
+    * */
+    public void printDaysWithValue(LinkedHashMap<Integer, Integer> daysValue) {
+        daysValue.forEach(((day, value) -> {
+            System.out.println("Day:- " + day + " Earned:- " + value);
+        }));
+    }
+
 
     public static void main(String[] args) {
         GamblerSimulation gamblerSimulation = new GamblerSimulation();
-        Scanner scanner=new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the number of days in Month to Play not more than 31");
-
-        gamblerSimulation.totalAmountWonOrLoss(scanner.nextInt());
+        gamblerSimulation.calculateForMonth(scanner.nextInt());
+        gamblerSimulation.luckiestDayAndUnluckiestDay();
     }
 
 
