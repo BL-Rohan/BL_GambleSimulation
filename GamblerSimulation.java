@@ -147,12 +147,41 @@ public class GamblerSimulation {
         }));
     }
 
+    /*
+    * @useCase 7:Keep playing for  next month or not.
+    * @author   :Rohan Kadam
+    * */
+
+    public void continueOrStop(int month, int days) {
+        int winning = stake * days;
+        int losing = (int) Math.round(stake * 0.5* days);
+        int amount = 0;
+        while (month > 0) {
+            amount = calculateForMonth(days);
+            if (amount > winning) {
+                System.out.println("###Gambler is ***winning*** the game###");
+                month = month - 1;
+                continue;
+
+            }
+            if (amount < losing) {
+                System.out.println("#######Gambler is ***losing*** the game######");
+                month = 0;
+                break;
+
+            }
+
+        }
+    }
 
     public static void main(String[] args) {
         GamblerSimulation gamblerSimulation = new GamblerSimulation();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the number of days in Month to Play not more than 31");
-        gamblerSimulation.calculateForMonth(scanner.nextInt());
+        int days=scanner.nextInt();
+        System.out.println("Enter the months you want to play.");
+        int month=scanner.nextInt();
+        gamblerSimulation.continueOrStop(month,days);
         gamblerSimulation.luckiestDayAndUnluckiestDay();
     }
 
